@@ -11,18 +11,22 @@ public class FunctionEvaluator
     private static double Calculate(string postfix)
     {
         var stack = new Stack<double>();
-        foreach (var item in postfix)
+        var items = postfix.Trim().Split(' ');
+        foreach (var item in items)
         {
-            if (IsOperator(item))
+            if(item.Length == 1)
             {
-                var operator2 = stack.Pop();
-                var operator1 = stack.Pop();
-                stack.Push(Result(operator1, item, operator2));
+                var character = char.Parse(item);
+                if (IsOperator(character))
+                {
+                    var operator2 = stack.Pop();
+                    var operator1 = stack.Pop();
+                    stack.Push(Result(operator1, character, operator2));
+                    continue;
+                }
             }
-            else
-            {
-                stack.Push(char.GetNumericValue(item));
-            }
+            stack.Push(Double.Parse(item, System.Globalization.CultureInfo.InvariantCulture));
+          
         }
         return stack.Pop();
     }
@@ -43,11 +47,17 @@ public class FunctionEvaluator
     private static string ToPostfix(string infix)
     {
         var stack = new Stack<char>();
+        var currentNumber = string.Empty;
         var postfix = string.Empty;
         foreach (var item in infix)
         {
             if (IsOperator(item))
             {
+                if(currentNumber.Length > 0)
+                {
+                    postfix += $"{currentNumber} ";
+                    currentNumber = string.Empty;
+                }
                 if (stack.Count == 0)
                 {
                     stack.Push(item);
@@ -58,7 +68,7 @@ public class FunctionEvaluator
                     {
                         do
                         {
-                            postfix += stack.Pop();
+                            postfix += $"{stack.Pop()} ";
                         } while (stack.Peek() != '(');
                         stack.Pop();
                     }
@@ -70,7 +80,7 @@ public class FunctionEvaluator
                         }
                         else
                         {
-                            postfix += stack.Pop();
+                            postfix += $"{stack.Pop()} ";
                             stack.Push(item);
                         }
                     }
@@ -78,11 +88,13 @@ public class FunctionEvaluator
             }
             else
             {
-                postfix += item;
+                currentNumber += item;
+                if (item == infix.Last()) postfix += $"{currentNumber} ";
             }
         }
         do
         {
+            if(stack.Count == 0) break;
             postfix += stack.Pop();
         } while (stack.Count > 0);
         return postfix;
