@@ -111,7 +111,8 @@ namespace Evaluator.UI.Windows
 
         private void btnResult_Click(object sender, EventArgs e)
         {
-            textBox1.Text += $"= {FunctionEvaluator.Evalute(textBox1.Text)}";
+            if(textBox1.Text.Length == 0) return;
+            textBox1.Text += $"={FunctionEvaluator.Evalute(textBox1.Text)}";
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
